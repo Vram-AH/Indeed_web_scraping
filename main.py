@@ -2,6 +2,7 @@ import os
 import json
 import requests
 from bs4 import BeautifulSoup
+import pandas as pd
 
 url = 'https://www.indeed.com/jobs?'
 site = 'https://www.indeed.com'
@@ -82,7 +83,7 @@ def get_all_items():
         }
         jobs_list.append(data_dict)
 
-     #writing json file
+    #writing json file
     try:
         os.mkdir('json_result')
     except FileExistsError:
@@ -91,6 +92,14 @@ def get_all_items():
     with open('json_result/job_list.json', 'w+') as json_data:
         json.dump(jobs_list, json_data)
     print('json created')
+
+    #create CSV and Excel file
+    df = pd.DataFrame(jobs_list)
+    df.to_csv('indeed_data.CSV', index=False)
+    df.to_excel('indeed_data.xlsx', index=False)
+
+    # data created
+    print('Data Created Success')
 
 
 
