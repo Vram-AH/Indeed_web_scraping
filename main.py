@@ -63,6 +63,7 @@ def get_all_items():
     #scraping process
     contents = soup.find_all('table', 'jobCard_mainContent big6_visualChanges')
 
+    jobs_list = []
     for item in contents:
         title = item.find('h2', 'jobTitle').text
         company = item.find('span', 'companyName')
@@ -72,7 +73,16 @@ def get_all_items():
         except:
             company_link = 'Link is not Available'
 
-        print(company_link)
+        #sorting data
+        data_dict = {
+            'title': title,
+            'company name': company_name,
+            'link': company_link
+        }
+        jobs_list.append(data_dict)
+
+    # cetak data disini
+    print(f'Jumlah Datanya Adalah: {len(jobs_list)}')
 
 
 if __name__ == '__main__':
