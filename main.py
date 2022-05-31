@@ -1,4 +1,5 @@
 import os
+import json
 import requests
 from bs4 import BeautifulSoup
 
@@ -81,8 +82,17 @@ def get_all_items():
         }
         jobs_list.append(data_dict)
 
-    # cetak data disini
-    print(f'Jumlah Datanya Adalah: {len(jobs_list)}')
+     #writing json file
+    try:
+        os.mkdir('json_result')
+    except FileExistsError:
+        pass
+
+    with open('json_result/job_list.json', 'w+') as json_data:
+        json.dump(jobs_list, json_data)
+    print('json created')
+
+
 
 
 if __name__ == '__main__':
