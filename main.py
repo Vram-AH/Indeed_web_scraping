@@ -15,15 +15,13 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.62 Safari/537.36'}
 
 res = requests.get(url, params=params, headers=headers)
-
-
 # print(res.status_code) = untuk tes web bisa scrapping atau tidak
 
 
-def get_total_pages():
+def get_total_pages(query, location):
     params = {
-        'q': 'Python Developer',
-        'l': 'New York State',
+        'q': query,
+        'l': location,
         'vjk': '58789b4c15174434'
     }
 
@@ -47,12 +45,13 @@ def get_total_pages():
         total_pages.append(page.text)
 
     total = int(max(total_pages))
-    print(total)
+    return total
 
-def get_all_items():
+def get_all_items(query, location, start, page):
     params = {
-        'q': 'Python Developer',
-        'l': 'New York State',
+        'q': query,
+        'l': location,
+        'start': start,
         'vjk': '58789b4c15174434'
     }
     res = requests.get(url, params=params, headers=headers)
@@ -89,20 +88,50 @@ def get_all_items():
     except FileExistsError:
         pass
 
-    with open('json_result/job_list.json', 'w+') as json_data:
+    with open(f'json_result/{query}_in_{location}_page_{page}.json', 'w+') as json_data:
         json.dump(jobs_list, json_data)
     print('json created')
+    return jobs_list
 
-    #create CSV and Excel file
-    df = pd.DataFrame(jobs_list)
-    df.to_csv('indeed_data.CSV', index=False)
-    df.to_excel('indeed_data.xlsx', index=False)
+def create_document(dataFrame, filename):
+    try:
+        os.mkdir('data_result')
+    except FileExistsError:
+        pass
 
-    # data created
-    print('Data Created Success')
+    df = pd.DataFrame(dataFrame)
+    df.to_csv(f'data_result/{filename}.csv', index=False)
+    df.to_excel(f'data_results{filename}.xlsx', index=False)
+
+    print(f'File {filename}.csv and {filename}.xlsx successfully craeted')
 
 
+def run():
+    query = input('Enter Your Query: ')
+    location = input('Enter Your Location: ')
+
+    total = get_total_pages(query, location)
+    counter = 0
+    final_result = []
+    for page in range(total):
+        page += 1
+        counter += 10
+        final_result += get_all_items(query, location, counter, page)
+
+    # formating data
+    try:
+        os.mkdir('reports')
+    except FileExistsError:
+        pass
+
+    with open('reports/{}.json'.format(query), 'w+') as final_data:
+        json.dump(final_result, final_data)
+
+    print('Data Json Created')
+
+    # create doucument
+    create_document(final_result, query)
 
 
 if __name__ == '__main__':
-    get_all_items()
+    run()
